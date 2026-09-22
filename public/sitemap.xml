@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+>
+  <url>
+    <loc>https://your-domain.com/</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/about</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/programs</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/trainers</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/memberships</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/classes</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/gallery</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/contact</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/join</loc>
+  </url>
+
+  <url>
+    <loc>https://your-domain.com/free-trial</loc>
+  </url>
+</urlset>
