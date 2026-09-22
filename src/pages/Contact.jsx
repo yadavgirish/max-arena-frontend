@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 
 import SectionHeading from "../components/SectionHeading";
@@ -38,16 +39,19 @@ const enquiryTypes = [
   "Classes",
 ];
 
-function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    enquiry: "General Enquiry",
-    message: "",
-  });
+const initialFormData = {
+  name: "",
+  email: "",
+  phone: "",
+  enquiry: "General Enquiry",
+  message: "",
+};
 
+function Contact() {
+  const [formData, setFormData] = useState(initialFormData);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -56,20 +60,64 @@ function Contact() {
       ...previous,
       [name]: value,
     }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    setSubmitted(true);
+    if (isSubmitting) {
+      return;
+    }
 
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      enquiry: "General Enquiry",
-      message: "",
-    });
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/contact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            subject: formData.enquiry,
+            message: formData.message,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const validationMessage =
+          data?.errors?.[0]?.message || data?.message;
+
+        throw new Error(
+          validationMessage || "Unable to send your enquiry."
+        );
+      }
+
+      setSubmitted(true);
+      setFormData(initialFormData);
+    } catch (submitError) {
+      console.error("Contact form submission error:", submitError);
+
+      setError(
+        submitError.message ||
+          "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -93,7 +141,7 @@ function Contact() {
               eyebrow="MAX ARENA / CONTACT"
               title={
                 <>
-                  LET'S TALK
+                  LET&apos;S TALK
                   <br />
                   TRAINING
                 </>
@@ -148,7 +196,11 @@ function Contact() {
                   );
 
                   return item.href ? (
-                    <a key={item.label} href={item.href} className="block">
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      className="block"
+                    >
                       {content}
                     </a>
                   ) : (
@@ -157,7 +209,11 @@ function Contact() {
                 })}
               </div>
 
-              <Reveal animation="fadeUp" delay={0.15} className="mt-8">
+              <Reveal
+                animation="fadeUp"
+                delay={0.15}
+                className="mt-8"
+              >
                 <div className="border-t border-white/10 pt-7">
                   <p className="font-space text-[8px] font-bold uppercase tracking-[0.2em] text-white/25">
                     OPENING HOURS
@@ -167,6 +223,7 @@ function Contact() {
                     <span className="font-manrope text-xs text-white/45">
                       Monday — Saturday
                     </span>
+
                     <span className="font-space text-[9px] text-white/60">
                       06:00 — 21:00
                     </span>
@@ -176,6 +233,7 @@ function Contact() {
                     <span className="font-manrope text-xs text-white/45">
                       Sunday
                     </span>
+
                     <span className="font-space text-[9px] text-white/60">
                       07:00 — 14:00
                     </span>
@@ -239,7 +297,8 @@ function Contact() {
                           onChange={handleChange}
                           placeholder="Enter your name"
                           required
-                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none placeholder:text-white/20 transition-colors focus:border-white/40"
+                          disabled={isSubmitting}
+                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-white/40 disabled:cursor-not-allowed disabled:opacity-50"
                         />
                       </div>
 
@@ -259,7 +318,8 @@ function Contact() {
                           onChange={handleChange}
                           placeholder="you@example.com"
                           required
-                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none placeholder:text-white/20 transition-colors focus:border-white/40"
+                          disabled={isSubmitting}
+                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-white/40 disabled:cursor-not-allowed disabled:opacity-50"
                         />
                       </div>
 
@@ -279,7 +339,8 @@ function Contact() {
                           onChange={handleChange}
                           placeholder="+91"
                           required
-                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none placeholder:text-white/20 transition-colors focus:border-white/40"
+                          disabled={isSubmitting}
+                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none transition-colors placeholder:text-white/20 focus:border-white/40 disabled:cursor-not-allowed disabled:opacity-50"
                         />
                       </div>
 
@@ -296,7 +357,8 @@ function Contact() {
                           name="enquiry"
                           value={formData.enquiry}
                           onChange={handleChange}
-                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none transition-colors focus:border-white/40"
+                          disabled={isSubmitting}
+                          className="mt-3 w-full border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm text-white outline-none transition-colors focus:border-white/40 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {enquiryTypes.map((type) => (
                             <option
@@ -327,16 +389,26 @@ function Contact() {
                         onChange={handleChange}
                         placeholder="Tell us what you want to know..."
                         required
-                        className="mt-3 w-full resize-none border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm leading-relaxed text-white outline-none placeholder:text-white/20 transition-colors focus:border-white/40"
+                        disabled={isSubmitting}
+                        className="mt-3 w-full resize-none border-b border-white/10 bg-transparent px-0 py-3 font-manrope text-sm leading-relaxed text-white outline-none transition-colors placeholder:text-white/20 focus:border-white/40 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
+
+                    {error && (
+                      <div
+                        role="alert"
+                        className="mt-6 border border-red-500/20 bg-red-500/5 px-4 py-3 font-manrope text-xs leading-5 text-red-300"
+                      >
+                        {error}
+                      </div>
+                    )}
 
                     <div className="mt-8">
                       <MagneticButton
                         type="submit"
                         className="w-full sm:w-auto"
                       >
-                        Send Enquiry
+                        {isSubmitting ? "SENDING..." : "SEND ENQUIRY"}
                       </MagneticButton>
                     </div>
 
@@ -386,7 +458,9 @@ function Contact() {
                 <div className="relative flex min-h-[320px] items-center justify-center overflow-hidden border border-white/10 bg-[#080808]">
                   <div className="absolute inset-0 opacity-40">
                     <div className="absolute left-1/2 top-1/2 h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
+
                     <div className="absolute left-1/2 top-1/2 h-[190px] w-[190px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10" />
+
                     <div className="absolute left-1/2 top-1/2 h-[100px] w-[100px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20" />
                   </div>
 
@@ -417,7 +491,7 @@ function Contact() {
             <SectionLabel number="05" label="Start Here" align="center" />
 
             <h2 className="mt-8 font-bebas text-7xl uppercase leading-[0.82] tracking-wide text-white sm:text-8xl lg:text-[9rem]">
-              LET'S
+              LET&apos;S
               <br />
               TALK.
             </h2>
@@ -429,7 +503,9 @@ function Contact() {
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <MagneticButton to="/free-trial">Book Free Trial</MagneticButton>
+              <MagneticButton to="/free-trial">
+                Book Free Trial
+              </MagneticButton>
 
               <MagneticButton to="/memberships" variant="outline">
                 View Memberships
