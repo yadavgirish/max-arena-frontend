@@ -7,6 +7,7 @@ import SectionLabel from "../components/SectionLabel";
 import MagneticButton from "../components/buttons/MagneticButton";
 import Reveal from "../components/animations/Reveal";
 import SEO from "../components/SEO";
+import { apiRequest } from "../services/api";
 
 const contactDetails = [
   {
@@ -77,34 +78,16 @@ function Contact() {
     setError("");
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/contact",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            subject: formData.enquiry,
-            message: formData.message,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        const validationMessage =
-          data?.errors?.[0]?.message || data?.message;
-
-        throw new Error(
-          validationMessage || "Unable to send your enquiry."
-        );
-      }
+      await apiRequest("/contact", {
+        method: "POST",
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.enquiry,
+          message: formData.message,
+        },
+      });
 
       setSubmitted(true);
       setFormData(initialFormData);
@@ -112,8 +95,7 @@ function Contact() {
       console.error("Contact form submission error:", submitError);
 
       setError(
-        submitError.message ||
-          "Something went wrong. Please try again."
+        submitError.message || "Something went wrong. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -196,11 +178,7 @@ function Contact() {
                   );
 
                   return item.href ? (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      className="block"
-                    >
+                    <a key={item.label} href={item.href} className="block">
                       {content}
                     </a>
                   ) : (
@@ -209,11 +187,7 @@ function Contact() {
                 })}
               </div>
 
-              <Reveal
-                animation="fadeUp"
-                delay={0.15}
-                className="mt-8"
-              >
+              <Reveal animation="fadeUp" delay={0.15} className="mt-8">
                 <div className="border-t border-white/10 pt-7">
                   <p className="font-space text-[8px] font-bold uppercase tracking-[0.2em] text-white/25">
                     OPENING HOURS
@@ -503,9 +477,7 @@ function Contact() {
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <MagneticButton to="/free-trial">
-                Book Free Trial
-              </MagneticButton>
+              <MagneticButton to="/free-trial">Book Free Trial</MagneticButton>
 
               <MagneticButton to="/memberships" variant="outline">
                 View Memberships

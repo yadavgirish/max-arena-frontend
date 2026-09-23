@@ -55,10 +55,9 @@ function ProgramDetails() {
   return (
     <>
       <SEO
-        title="Program Not Found"
-        description="The requested MAX ARENA training program could not be found."
+        title={`${program.name} Training Program`}
+        description={program.description}
         path={`/programs/${slug || ""}`}
-        noIndex
       />
       <main className="bg-[#050505] text-white">
         {/* HERO */}
@@ -248,10 +247,7 @@ function ProgramDetails() {
                     Book Free Trial
                   </MagneticButton>
 
-                  <MagneticButton
-                    to={`/join?plan=Performance`}
-                    variant="outline"
-                  >
+                  <MagneticButton to="/join?plan=performance" variant="outline">
                     View Memberships
                   </MagneticButton>
                 </div>

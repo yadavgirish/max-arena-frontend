@@ -1,9 +1,11 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import NotFound from "../pages/NotFound";
 
+import NotFound from "../pages/NotFound";
 import PublicLayout from "../layouts/PublicLayout";
 import PageTransition from "../components/animations/PageTransition";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import PublicOnlyRoute from "../components/auth/PublicOnlyRoute";
 
 // Pages
 const Home = lazy(() => import("../pages/Home"));
@@ -18,6 +20,10 @@ const Gallery = lazy(() => import("../pages/Gallery"));
 const Contact = lazy(() => import("../pages/Contact"));
 const Join = lazy(() => import("../pages/Join"));
 const FreeTrial = lazy(() => import("../pages/FreeTrial"));
+
+const Login = lazy(() => import("../pages/Login"));
+const Register = lazy(() => import("../pages/Register"));
+const Dashboard = lazy(() => import("../pages/Dashboard"));
 
 function PageLoader() {
   return (
@@ -41,6 +47,7 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
+        {/* PUBLIC ROUTES */}
         <Route element={<PublicLayout />}>
           <Route
             path="/"
@@ -149,16 +156,50 @@ function AppRoutes() {
               </AnimatedPage>
             }
           />
+        </Route>
 
+        {/* AUTHENTICATION */}
+        <Route element={<PublicOnlyRoute />}>
           <Route
-            path="*"
+            path="/login"
             element={
               <AnimatedPage>
-                <NotFound />
+                <Login />
+              </AnimatedPage>
+            }
+          />
+
+          <Route
+            path="/register"
+            element={
+              <AnimatedPage>
+                <Register />
               </AnimatedPage>
             }
           />
         </Route>
+
+        {/* PROTECTED ROUTES */}
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path="/dashboard"
+            element={
+              <AnimatedPage>
+                <Dashboard />
+              </AnimatedPage>
+            }
+          />
+        </Route>
+
+        {/* 404 */}
+        <Route
+          path="*"
+          element={
+            <AnimatedPage>
+              <NotFound />
+            </AnimatedPage>
+          }
+        />
       </Routes>
     </Suspense>
   );

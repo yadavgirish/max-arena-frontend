@@ -15,6 +15,7 @@ import SectionHeading from "../components/SectionHeading";
 import MagneticButton from "../components/buttons/MagneticButton";
 import Reveal from "../components/animations/Reveal";
 import SEO from "../components/SEO";
+import { apiRequest } from "../services/api";
 
 function FreeTrial() {
   const [formData, setFormData] = useState({
@@ -29,6 +30,8 @@ function FreeTrial() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -68,10 +71,42 @@ function FreeTrial() {
     }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    setSubmitted(true);
+    setError("");
+    setSubmitting(true);
+
+    try {
+      await apiRequest("/contact", {
+        method: "POST",
+        body: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: `Free Trial Request - ${formData.date} - ${formData.time}`,
+          message: [
+            "Free Trial Request",
+            `Preferred Date: ${formData.date}`,
+            `Preferred Time: ${formData.time}`,
+            `Primary Goal: ${formData.goal}`,
+            `Training Experience: ${formData.experience || "Not specified"}`,
+            "",
+            "Additional Message:",
+            formData.message || "No additional message provided.",
+          ].join("\n"),
+        },
+      });
+
+      setSubmitted(true);
+    } catch (requestError) {
+      setError(
+        requestError?.message ||
+          "Something went wrong while submitting your trial request."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -82,6 +117,7 @@ function FreeTrial() {
           description="Book a free trial at MAX ARENA and experience our training environment, equipment and coaching."
           path="/free-trial"
         />
+
         <main className="min-h-screen bg-[#050505] px-6 pb-24 pt-32 text-white sm:px-8 lg:px-12">
           <div className="mx-auto flex min-h-[65vh] max-w-4xl items-center justify-center">
             <Reveal className="w-full">
@@ -112,6 +148,7 @@ function FreeTrial() {
                       <p className="font-space text-[9px] uppercase tracking-[0.2em] text-white/30">
                         REQUESTED DATE
                       </p>
+
                       <p className="mt-1 text-sm text-white/70">
                         {formData.date || "To be confirmed"}
                       </p>
@@ -125,6 +162,7 @@ function FreeTrial() {
                       <p className="font-space text-[9px] uppercase tracking-[0.2em] text-white/30">
                         PREFERRED TIME
                       </p>
+
                       <p className="mt-1 text-sm text-white/70">
                         {formData.time || "To be confirmed"}
                       </p>
@@ -202,7 +240,6 @@ function FreeTrial() {
                     className="flex items-start gap-3 border-b border-white/10 pb-4"
                   >
                     <Check size={16} className="mt-0.5 shrink-0 text-white" />
-
                     <span className="text-sm text-white/55">{item}</span>
                   </div>
                 ))}
@@ -215,7 +252,9 @@ function FreeTrial() {
 
                 <div className="mt-5 space-y-5">
                   <div className="flex gap-4">
-                    <span className="font-space text-xs text-white/30">01</span>
+                    <span className="font-space text-xs text-white/30">
+                      01
+                    </span>
 
                     <p className="text-sm leading-6 text-white/50">
                       Submit your preferred date and time.
@@ -223,7 +262,9 @@ function FreeTrial() {
                   </div>
 
                   <div className="flex gap-4">
-                    <span className="font-space text-xs text-white/30">02</span>
+                    <span className="font-space text-xs text-white/30">
+                      02
+                    </span>
 
                     <p className="text-sm leading-6 text-white/50">
                       Our team contacts you to confirm availability.
@@ -231,7 +272,9 @@ function FreeTrial() {
                   </div>
 
                   <div className="flex gap-4">
-                    <span className="font-space text-xs text-white/30">03</span>
+                    <span className="font-space text-xs text-white/30">
+                      03
+                    </span>
 
                     <p className="text-sm leading-6 text-white/50">
                       Walk in, train and experience MAX ARENA.
@@ -281,6 +324,8 @@ function FreeTrial() {
                       name="name"
                       type="text"
                       required
+                      minLength={2}
+                      maxLength={50}
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="Enter your name"
@@ -337,6 +382,7 @@ function FreeTrial() {
                         name="phone"
                         type="tel"
                         required
+                        maxLength={20}
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="+91 98765 43210"
@@ -431,7 +477,6 @@ function FreeTrial() {
                     <option value="" disabled>
                       Select your goal
                     </option>
-
                     <option value="muscle-building">Build Muscle</option>
                     <option value="fat-loss">Lose Fat</option>
                     <option value="strength">Build Strength</option>
@@ -481,6 +526,7 @@ function FreeTrial() {
                     id="message"
                     name="message"
                     rows="5"
+                    maxLength={2000}
                     value={formData.message}
                     onChange={handleChange}
                     placeholder="Tell us about your goals, previous training or anything else..."
@@ -488,16 +534,27 @@ function FreeTrial() {
                   />
                 </div>
 
+                {/* Error */}
+                {error && (
+                  <div className="border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm leading-6 text-red-300">
+                    {error}
+                  </div>
+                )}
+
                 {/* Submit */}
                 <button
                   type="submit"
-                  className="group flex min-h-14 w-full items-center justify-center gap-3 bg-white px-6 font-space text-xs font-bold tracking-[0.18em] text-black transition-all duration-300 hover:bg-white/90"
+                  disabled={submitting}
+                  className="group flex min-h-14 w-full items-center justify-center gap-3 bg-white px-6 font-space text-xs font-bold tracking-[0.18em] text-black transition-all duration-300 hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  REQUEST FREE TRIAL
-                  <ArrowRight
-                    size={17}
-                    className="transition-transform duration-300 group-hover:translate-x-1"
-                  />
+                  {submitting ? "SUBMITTING..." : "REQUEST FREE TRIAL"}
+
+                  {!submitting && (
+                    <ArrowRight
+                      size={17}
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    />
+                  )}
                 </button>
 
                 <p className="text-center text-[10px] leading-5 text-white/25">
@@ -528,6 +585,7 @@ function FreeTrial() {
             className="group inline-flex items-center gap-3 font-space text-xs font-bold tracking-[0.18em] text-white"
           >
             VIEW PLANS
+
             <ArrowRight
               size={17}
               className="transition-transform duration-300 group-hover:translate-x-1"

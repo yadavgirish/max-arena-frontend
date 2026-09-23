@@ -1,10 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import {
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-} from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 import SectionLabel from "../components/SectionLabel";
 import SectionHeading from "../components/SectionHeading";
@@ -14,6 +9,7 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "../components/animations/StaggerContainer";
+import SEO from "../components/SEO";
 
 import trainers from "../data/trainers";
 
@@ -24,42 +20,44 @@ function TrainerDetails() {
 
   if (!trainer) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#050505] px-5 text-white">
-        <div className="text-center">
-          <p className="font-space text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
-            TRAINER 404
-          </p>
+      <>
+        <SEO
+          title={`${trainer.name} — ${trainer.role}`}
+          description={trainer.bio}
+          path={`/trainers/${id}`}
+        />
+        <main className="flex min-h-screen items-center justify-center bg-[#050505] px-5 text-white">
+          <div className="text-center">
+            <p className="font-space text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
+              TRAINER 404
+            </p>
 
-          <h1 className="mt-5 font-bebas text-[18vw] leading-[0.8] tracking-[-0.02em] sm:text-[12rem]">
-            PROFILE UNAVAILABLE.
-          </h1>
+            <h1 className="mt-5 font-bebas text-[18vw] leading-[0.8] tracking-[-0.02em] sm:text-[12rem]">
+              PROFILE UNAVAILABLE.
+            </h1>
 
-          <p className="mx-auto mt-8 max-w-md font-manrope text-sm leading-relaxed text-white/40">
-            The trainer profile you're looking for doesn't exist or may have
-            been moved.
-          </p>
+            <p className="mx-auto mt-8 max-w-md font-manrope text-sm leading-relaxed text-white/40">
+              The trainer profile you're looking for doesn't exist or may have
+              been moved.
+            </p>
 
-          <div className="mt-8">
-            <MagneticButton to="/trainers" variant="outline">
-              Back To Trainers
-            </MagneticButton>
+            <div className="mt-8">
+              <MagneticButton to="/trainers" variant="outline">
+                Back To Trainers
+              </MagneticButton>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </>
     );
   }
 
-  const currentIndex = trainers.findIndex(
-    (item) => item.id === trainer.id
-  );
+  const currentIndex = trainers.findIndex((item) => item.id === trainer.id);
 
-  const previousTrainer =
-    currentIndex > 0 ? trainers[currentIndex - 1] : null;
+  const previousTrainer = currentIndex > 0 ? trainers[currentIndex - 1] : null;
 
   const nextTrainer =
-    currentIndex < trainers.length - 1
-      ? trainers[currentIndex + 1]
-      : null;
+    currentIndex < trainers.length - 1 ? trainers[currentIndex + 1] : null;
 
   return (
     <main className="bg-[#050505] text-white">

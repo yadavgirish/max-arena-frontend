@@ -57,7 +57,7 @@ function Memberships() {
                     description={membership.description}
                     features={membership.features}
                     featured={membership.featured}
-                    href={`/join?plan=${membership.name}`}
+                    href={`/join?plan=${membership.id}`}
                   />
                 </StaggerItem>
               ))}

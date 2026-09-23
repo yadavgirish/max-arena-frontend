@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
+
 import {
   ArrowRight,
   ChevronDown,
   Menu,
   X,
 } from "lucide-react";
+
 import {
   AnimatePresence,
   motion,
 } from "framer-motion";
+
 import {
   Link,
   useLocation,
 } from "react-router-dom";
+
+import { useAuth } from "../../context/AuthContext";
 
 const programLinks = [
   {
@@ -62,6 +67,7 @@ const mainLinks = [
 
 function Navbar() {
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [programsOpen, setProgramsOpen] = useState(false);
@@ -91,14 +97,17 @@ function Navbar() {
   }, [location.pathname]);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen
-      ? "hidden"
-      : "";
+    document.body.style.overflow = menuOpen ? "hidden" : "";
 
     return () => {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  async function handleLogout() {
+    await logout();
+    setMenuOpen(false);
+  }
 
   return (
     <header className="fixed left-0 right-0 top-0 z-[90]">
@@ -210,9 +219,9 @@ function Navbar() {
               </AnimatePresence>
             </div>
 
+            {/* MAIN LINKS */}
             {mainLinks.map((link) => {
-              const active =
-                location.pathname === link.path;
+              const active = location.pathname === link.path;
 
               return (
                 <Link
@@ -235,21 +244,52 @@ function Navbar() {
                 </Link>
               );
             })}
+
+            {/* AUTH LINK */}
+            {isAuthenticated ? (
+              <Link
+                to="/dashboard"
+                className={`font-space text-[9px] font-bold uppercase tracking-[0.15em] transition-colors ${
+                  location.pathname === "/dashboard"
+                    ? "text-lime-400"
+                    : "text-white/45 hover:text-white"
+                }`}
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="font-space text-[9px] font-bold uppercase tracking-[0.15em] text-white/45 transition-colors hover:text-white"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           {/* DESKTOP CTA */}
-          <div className="hidden lg:block">
-            <Link
-              to="/free-trial"
-              className="group flex items-center gap-3 bg-white px-5 py-3 font-manrope text-[9px] font-bold uppercase tracking-[0.12em] text-black transition-transform duration-300 hover:scale-[1.02]"
-            >
-              Free Trial
+          <div className="hidden items-center gap-3 lg:flex">
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="font-manrope text-[9px] font-bold uppercase tracking-[0.12em] text-white/40 transition-colors hover:text-red-300"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                to="/free-trial"
+                className="group flex items-center gap-3 bg-white px-5 py-3 font-manrope text-[9px] font-bold uppercase tracking-[0.12em] text-black transition-transform duration-300 hover:scale-[1.02]"
+              >
+                Free Trial
 
-              <ArrowRight
-                size={14}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </Link>
+                <ArrowRight
+                  size={14}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+              </Link>
+            )}
           </div>
 
           {/* MOBILE BUTTON */}
@@ -394,6 +434,41 @@ function Navbar() {
                     </Link>
                   );
                 })}
+
+                {/* MOBILE AUTH */}
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      className={`block border-b border-white/10 py-4 font-bebas text-5xl uppercase tracking-wide ${
+                        location.pathname === "/dashboard"
+                          ? "text-lime-400"
+                          : "text-white/35"
+                      }`}
+                    >
+                      Dashboard
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="block w-full border-b border-white/10 py-4 text-left font-bebas text-5xl uppercase tracking-wide text-red-300/70"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    className={`block border-b border-white/10 py-4 font-bebas text-5xl uppercase tracking-wide ${
+                      location.pathname === "/login"
+                        ? "text-white"
+                        : "text-white/35"
+                    }`}
+                  >
+                    Login
+                  </Link>
+                )}
               </div>
 
               <div className="mt-auto pt-10">
